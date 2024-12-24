@@ -3,9 +3,16 @@ import re
 import asyncio
 from pyrogram import filters
 from pyrogram.enums import ChatMemberStatus
-from config import FORCE_SUB_CHANNELS, ADMINS
+from config import FORCE_SUB_CHANNELS, ADMINS, START_MSG
+
+
 from pyrogram.errors.exceptions.bad_request_400 import UserNotParticipant
 from pyrogram.errors import FloodWait
+
+# Use START_MSG in your logic
+async def start_command(client, message):
+    await message.reply(START_MSG)
+
 
 # Function to check if a user is subscribed
 async def is_subscribed(filter, client, update):
