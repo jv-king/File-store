@@ -39,11 +39,16 @@ FORCE_SUB_CHANNELS = os.environ.get("FORCE_SUB_CHANNELS", "-1002097394516,-10022
 
 from urllib.parse import quote_plus
 
+username = "Soulreapers"
 password = "jayvardhan@@"
-encoded_password = quote_plus(password)
-print(encoded_password)  # Output: jayvardhan%40%40
 
-DB_URI = os.environ.get("DATABASE_URL", "mongodb+srv://Reapers:jayvardhan%40%40@reapers.hvxag.mongodb.net/?retryWrites=true&w=majority&appName=Reapers")
+encoded_username = quote_plus(username)
+encoded_password = quote_plus(password)
+
+print(f"Encoded Username: {encoded_username}")
+print(f"Encoded Password: {encoded_password}")
+
+DB_URI = os.environ.get("DATABASE_URL", "mongodb+srv://Soulreapers:jayvardhan%40%40@reapers.hvxag.mongodb.net/?retryWrites=true&w=majority&appName=Reapers")
 DB_NAME = os.environ.get("DATABASE_NAME", "Reapers")
 
 TG_BOT_WORKERS = int(os.environ.get("TG_BOT_WORKERS", 10))
