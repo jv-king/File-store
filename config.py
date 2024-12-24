@@ -21,6 +21,8 @@ DB_NAME = os.environ.get("DATABASE_NAME", "Reapers")
 
 TG_BOT_WORKERS = int(os.environ.get("TG_BOT_WORKERS", 10))
 
+PORT = int(os.environ.get("PORT", 8080))  # Default to port 8080 if not provided
+
 # Database or in-memory structure to store user subscription status
 user_subscribed_channels = {}
 
