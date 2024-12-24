@@ -14,7 +14,7 @@ API_HASH = os.environ.get("API_HASH", "1868dea7a187d9060a3c57be6a0f4182")
 
 # Channel and other configurations
 CHANNEL_ID = int(os.environ.get("CHANNEL_ID", "-1002433338956"))
-FORCE_SUB_CHANNELS = os.environ.get("FORCE_SUB_CHANNELS", "-1002097394516,").split(",")   # Multiple force sub channels
+FORCE_SUB_CHANNELS = os.environ.get("FORCE_SUB_CHANNELS", "-1002097394516,-1002271867183,-1002325985046 ").split(",")   # Multiple force sub channels
 
 # Database or in-memory structure to store user subscription status
 user_subscribed_channels = {}
