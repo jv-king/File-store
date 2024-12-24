@@ -7,8 +7,7 @@ import pymongo, os
 from config import DB_URI, DB_NAME
 
 
-dbclient = pymongo.MongoClient("mongodb+srv://Soulreapers:jayvardhan%40%40@cluster0.mongodb.net/Reapers?retryWrites=true&w=majority
-")
+dbclient = pymongo.MongoClient("mongodb+srv://Soulreapers:jayvardhan%40%40@cluster0.mongodb.net/Reapers?retryWrites=true&w=majority")
 database = dbclient[Soulreapers]
 
 
