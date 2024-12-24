@@ -12,7 +12,7 @@ TG_BOT_TOKEN = os.environ.get("TG_BOT_TOKEN", "8122813255:AAFNwBSTPSyD4ylnEy6Ia6
 OWNER_ID = int(os.environ.get("OWNER_ID","5248001163"))  # Replace 123456789 with your Telegram user ID
 
 # Define ADMINS as a list of Telegram user IDs
-ADMINS = [int(admin) for admin in os.environ.get("ADMINS", "5248001163").split(",")]
+ADMINS = [int(admin) for admin in os.environ.get("ADMINS", "5248001163,7362974333").split(",")]
 
 
 # Your API ID and Hash from my.telegram.org
