@@ -38,12 +38,6 @@ app = Client("my_bot", bot_token=TG_BOT_TOKEN, api_id=APP_ID, api_hash=API_HASH)
 # Force Subscription Message
 FORCE_MSG = os.environ.get("FORCE_SUB_MESSAGE", "Hello {first}\n\n<b>You need to join in Channels to use me\n\nKindly Please join the Channels</b>")
 
-# Content for users
-CONTENT = {
-    "file": "path_to_your_file.txt",  # Replace with your file path or URL
-    "message": "Here is your exclusive content! Enjoy."
-}
-
 # Start command
 @app.on_message(filters.command("start"))
 async def start(bot, message):
@@ -58,10 +52,8 @@ async def start(bot, message):
         )
         await message.reply(FORCE_MSG.format(first=first_name), reply_markup=markup)
     else:
-        # If in all channels, proceed to give access
-        await message.reply("You have joined all required channels! Here is the content you requested.")
-        # Provide content here, you can choose between sending a file or a message
-        await send_content(message.chat.id)
+        # If in all channels, proceed to grant access (without sending any content)
+        await message.reply("You have joined all required channels! You can now use the bot.")
 
 # Function to check if a user has joined all the force sub channels
 async def check_user_channels(user_id):
@@ -80,21 +72,6 @@ async def check_user_channels(user_id):
     user_subscribed_channels[user_id] = len(joined_channels) == len(FORCE_SUB_CHANNELS)
     return user_subscribed_channels[user_id]
 
-# Send content to the user (file or message)
-async def send_content(user_id):
-    if user_id in user_subscribed_channels and user_subscribed_channels[user_id]:
-        # Send file or message based on what you want to provide
-        if "file" in CONTENT:
-            # Send file
-            file_path = CONTENT["file"]
-            await app.send_document(user_id, file_path)
-        elif "message" in CONTENT:
-            # Send message
-            await app.send_message(user_id, CONTENT["message"])
-    else:
-        # If the user has not joined all channels, remind them to join
-        await app.send_message(user_id, "You still haven't joined all required channels. Please join them and try again.")
-
 # Handle "Try Again" button
 @app.on_message(filters.text & filters.regex(r"Try Again"))
 async def try_again(bot, message):
@@ -103,9 +80,7 @@ async def try_again(bot, message):
 
     if await check_user_channels(user_id):
         # If the user is in all channels now, grant access
-        await message.reply("You have joined all required channels! Here is the content you requested.")
-        # Send content here (file or message)
-        await send_content(user_id)
+        await message.reply("You have joined all required channels! You can now use the bot.")
     else:
         # If still not in all channels, prompt to try again
         markup = InlineKeyboardMarkup(
