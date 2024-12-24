@@ -21,7 +21,6 @@ DB_NAME = os.environ.get("DATABASE_NAME", "Reapers")
 
 TG_BOT_WORKERS = int(os.environ.get("TG_BOT_WORKERS", 10))
 
-
 # Database or in-memory structure to store user subscription status
 user_subscribed_channels = {}
 
@@ -47,36 +46,68 @@ app = Client("my_bot", bot_token=TG_BOT_TOKEN, api_id=APP_ID, api_hash=API_HASH)
 # Force Subscription Message
 FORCE_MSG = os.environ.get("FORCE_SUB_MESSAGE", "Hello {first}\n\n<b>You need to join in Channels to use me\n\nKindly Please join the Channels</b>")
 
+# Fetch invite links for FORCE_SUB_CHANNELS
+async def get_invite_links():
+    invite_links = {}
+    for channel_id in FORCE_SUB_CHANNELS:
+        try:
+            chat = await app.get_chat(channel_id)
+            if chat.invite_link:
+                # Use existing invite link if available
+                invite_links[channel_id] = chat.invite_link
+            else:
+                # Generate a new invite link
+                invite_links[channel_id] = (await app.create_chat_invite_link(channel_id)).invite_link
+        except pyrogram.errors.ChatAdminRequired:
+            LOGGER.error(f"Bot must be an admin in the channel {channel_id} to fetch or generate invite links.")
+            invite_links[channel_id] = None
+        except Exception as e:
+            LOGGER.error(f"Error fetching invite link for channel {channel_id}: {e}")
+            invite_links[channel_id] = None
+    return invite_links
+
 # Start command
 @app.on_message(filters.command("start"))
 async def start(bot, message):
     user_id = message.chat.id
     first_name = message.from_user.first_name
 
-    # Check if user is in all required channels
     if not await check_user_channels(user_id):
-        # If not in all channels, send the force sub message with the buttons
-        markup = InlineKeyboardMarkup(
-            [[InlineKeyboardButton(text="Join Channel", url=f"https://t.me/{channel}") for channel in FORCE_SUB_CHANNELS]]
+        invite_links = await get_invite_links()
+
+        # Create buttons with invite links
+        buttons = [
+            [InlineKeyboardButton("Join Channel", url=invite_links[channel_id])]
+            for channel_id in FORCE_SUB_CHANNELS if invite_links.get(channel_id)
+        ]
+
+        markup = InlineKeyboardMarkup(buttons)
+
+        await message.reply(
+            FORCE_MSG.format(first=first_name),
+            reply_markup=markup
         )
-        await message.reply(FORCE_MSG.format(first=first_name), reply_markup=markup)
     else:
-        # If in all channels, proceed to grant access (without sending any content)
         await message.reply("You have joined all required channels! You can now use the bot.")
 
 # Function to check if a user has joined all the force sub channels
 async def check_user_channels(user_id):
-    joined_channels = []
-    for channel in FORCE_SUB_CHANNELS:
+    for channel_id in FORCE_SUB_CHANNELS:
         try:
-            chat_member = await app.get_chat_member(channel, user_id)
-            if chat_member.status in ["member", "administrator"]:
-                joined_channels.append(channel)
-        except pyrogram.errors.FloodWait as e:
-            logging.error(f"Flood wait error: {e}")
+            # Check if the user is a member of the channel
+            chat_member = await app.get_chat_member(channel_id, user_id)
+            if chat_member.status not in ["member", "administrator"]:
+                return False
+        except pyrogram.errors.ChatAdminRequired:
+            LOGGER.error(f"Bot must be an admin in channel {channel_id}.")
+        except pyrogram.errors.UserNotParticipant:
+            return False
         except Exception as e:
-            logging.error(f"Error checking channel membership: {e}")
-    
+            LOGGER.error(f"Error checking subscription status for user {user_id} in channel {channel_id}: {e}")
+            return False
+    return True
+
+
     # Store the user's subscription status
     user_subscribed_channels[user_id] = len(joined_channels) == len(FORCE_SUB_CHANNELS)
     return user_subscribed_channels[user_id]
