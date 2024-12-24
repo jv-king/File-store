@@ -18,6 +18,9 @@ ADMINS = [int(admin) for admin in os.environ.get("ADMINS", "5248001163,736297433
 START_MSG = "Welcome to the bot! Let me take you to heaven😋."
 
 
+# Add CUSTOM_CAPTION
+CUSTOM_CAPTION = "Here is your media."
+
 # Your API ID and Hash from my.telegram.org
 APP_ID = int(os.environ.get("APP_ID", "25026077"))
 API_HASH = os.environ.get("API_HASH", "1868dea7a187d9060a3c57be6a0f4182")
