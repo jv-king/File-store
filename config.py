@@ -14,6 +14,9 @@ OWNER_ID = int(os.environ.get("OWNER_ID","5248001163"))  # Replace 123456789 wit
 # Define ADMINS as a list of Telegram user IDs
 ADMINS = [int(admin) for admin in os.environ.get("ADMINS", "5248001163,7362974333").split(",")]
 
+# Add START_MSG
+START_MSG = "Welcome to the bot! Let me take you to heaven😋."
+
 
 # Your API ID and Hash from my.telegram.org
 APP_ID = int(os.environ.get("APP_ID", "25026077"))
