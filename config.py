@@ -17,9 +17,17 @@ ADMINS = [int(admin) for admin in os.environ.get("ADMINS", "5248001163,736297433
 # Add START_MSG
 START_MSG = "Welcome to the bot! Let me take you to heaven😋."
 
+#set your Custom Caption here, Keep None for Disable Custom Caption
+CUSTOM_CAPTION = os.environ.get("CUSTOM_CAPTION", None)
 
-# Add CUSTOM_CAPTION
-CUSTOM_CAPTION = "Here is your media."
+#set True if you want to prevent users from forwarding files from bot
+PROTECT_CONTENT = True if os.environ.get('PROTECT_CONTENT', "True") == "True" else False
+
+#Set true if you want Disable your Channel Posts Share button
+DISABLE_CHANNEL_BUTTON = os.environ.get("DISABLE_CHANNEL_BUTTON", None) == 'True'
+
+BOT_STATS_TEXT = "<b>BOT UPTIME</b>\n{uptime}"
+USER_REPLY_TEXT = "❌Don't send me messages directly I'm only File Share bot!If u have any queries contact @your_sensei_is_no_more"
 
 # Your API ID and Hash from my.telegram.org
 APP_ID = int(os.environ.get("APP_ID", "25026077"))
@@ -28,8 +36,6 @@ API_HASH = os.environ.get("API_HASH", "1868dea7a187d9060a3c57be6a0f4182")
 # Channel and other configurations
 CHANNEL_ID = int(os.environ.get("CHANNEL_ID", "-1002433338956"))
 FORCE_SUB_CHANNELS = os.environ.get("FORCE_SUB_CHANNELS", "-1002097394516,-1002271867183,-1002325985046 ").split(",")   # Multiple force sub channels
-
-DISABLE_CHANNEL_BUTTON = bool(int(os.environ.get("DISABLE_CHANNEL_BUTTON", "0")))  # Defaults to False
 
 DB_URI = os.environ.get("DATABASE_URL", "mongodb+srv://Soulreapers: jayvardhan@@@reapers.hvxag.mongodb.net/?retryWrites=true&w=majority&appName=Reapers")
 DB_NAME = os.environ.get("DATABASE_NAME", "Reapers")
