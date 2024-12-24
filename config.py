@@ -37,6 +37,12 @@ API_HASH = os.environ.get("API_HASH", "1868dea7a187d9060a3c57be6a0f4182")
 CHANNEL_ID = int(os.environ.get("CHANNEL_ID", "-1002433338956"))
 FORCE_SUB_CHANNELS = os.environ.get("FORCE_SUB_CHANNELS", "-1002097394516,-1002271867183,-1002325985046 ").split(",")   # Multiple force sub channels
 
+from urllib.parse import quote_plus
+
+password = "jayvardhan@@"
+encoded_password = quote_plus(password)
+print(encoded_password)  # Output: jayvardhan%40%40
+
 DB_URI = os.environ.get("DATABASE_URL", "mongodb+srv://Soulreapers:jayvardhan%40%40@reapers.hvxag.mongodb.net/?retryWrites=true&w=majority&appName=Reapers")
 DB_NAME = os.environ.get("DATABASE_NAME", "Reapers")
 
