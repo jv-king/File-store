@@ -33,6 +33,9 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
+
+LOGGER = logging.getLogger("FileSharingBot")
+
 logging.getLogger("pyrogram").setLevel(logging.WARNING)
 
 # Initialize Pyrogram client
