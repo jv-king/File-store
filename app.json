@@ -24,7 +24,7 @@
     },
     "DATABASE_URL": {
       "description": "Paste your mongo db url",
-      "value": "mongodb+srv://Soulreapers: jayvardhan@@@reapers.hvxag.mongodb.net/?retryWrites=true&w=majority&appName=Reapers"
+      "value": "mongodb+srv://Soulreapers: jayvardhan%40%40@reapers.hvxag.mongodb.net/?retryWrites=true&w=majority&appName=Reapers"
     },
     "DATABASE_NAME":{
       "description": "Enter your DATABASE_NAME ",
@@ -52,13 +52,13 @@
     },
     "ADMINS": {
       "description": "A space separated list of user_ids of Admins, they can only create links",
-      "value": "",
-      "required": false
+      "value": "5248001163,7362974333",
+      "required": true
     },
     "PROTECT_CONTENT": {
       "description": "Protect contents from getting forwarded",
-      "value": "False",
-      "required": false
+      "value": "true",
+      "required": true
     }
   },
   "buildpacks": [
