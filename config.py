@@ -48,7 +48,7 @@ encoded_password = quote_plus(password)
 print(f"Encoded Username: {encoded_username}")
 print(f"Encoded Password: {encoded_password}")
 
-DB_URI = os.environ.get("DATABASE_URL","mongodb+srv://Soulreapers:jayvardhan%40%40@cluster0.mongodb.net/Reapers?retryWrites=true&w=majority")
+DB_URI = os.environ.get("DATABASE_URL","mongodb+srv://Soulreapers:jayvardhan%40%40@reapers.hvxag.mongodb.net/?retryWrites=true&w=majority&appName=Reapers")
 DB_NAME = os.environ.get("DATABASE_NAME", "Reapers")
 
 TG_BOT_WORKERS = int(os.environ.get("TG_BOT_WORKERS", 10))
