@@ -8,7 +8,7 @@ from config import DB_URI, DB_NAME
 
 
 dbclient = pymongo.MongoClient("mongodb+srv://Soulreapers:jayvardhan%40%40@reapers.hvxag.mongodb.net/?retryWrites=true&w=majority&appName=Reapers")
-database = dbclient[Soulreapers]
+database = dbclient["Soulreapers"]
 
 
 user_data = database['users']
