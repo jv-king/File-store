@@ -40,7 +40,12 @@ class Bot(Client):
             except Exception as a:
                 self.LOGGER.warning(a)
                 self.LOGGER.warning("Bot can't Export Invite link from Force Sub Channel!")
-                self.LOGGER(__name__).warning(f"Please Double check the FORCE_SUB_CHANNELS value and Make sure Bot is Admin in channel with Invite Users via Link Permission, Current Force Sub Channels Value: {FORCE_SUB_CHANNELS}")
+
+   def __init__(self):
+        self.LOGGER = logging.getLogger(__name__)
+        logging.basicConfig(level=logging.INFO)
+
+                self.LOGGER.warning(f"Please Double check the FORCE_SUB_CHANNELS value and Make sure Bot is Admin in channel with Invite Users via Link Permission, Current Force Sub Channels Value: {FORCE_SUB_CHANNELS}")
                 self.LOGGER(__name__).info("\nBot Stopped. Join https://t.me/CodeXBotzSupport for support")
                 sys.exit()
         try:
