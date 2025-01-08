@@ -1,35 +1,43 @@
-#(©)Codexbotz
-
+import logging
 from aiohttp import web
 from plugins import web_server
-
 import pyromod.listen
 from pyrogram import Client
 from pyrogram.enums import ParseMode
 import sys
 from datetime import datetime
-
-from config import API_HASH, APP_ID, LOGGER, TG_BOT_TOKEN, TG_BOT_WORKERS, FORCE_SUB_CHANNELS, CHANNEL_ID, PORT
+from config import (
+    API_HASH,
+    APP_ID,
+    TG_BOT_TOKEN,
+    TG_BOT_WORKERS,
+    FORCE_SUB_CHANNELS,
+    CHANNEL_ID,
+    PORT
+)
 
 class Bot(Client):
     def __init__(self):
+        # Initialize the Pyrogram Client
         super().__init__(
             name="Bot",
             api_hash=API_HASH,
             api_id=APP_ID,
-            plugins={
-                "root": "plugins"
-            },
+            plugins={"root": "plugins"},
             workers=TG_BOT_WORKERS,
-            bot_token=TG_BOT_TOKEN
+            bot_token=TG_BOT_TOKEN,
         )
-        self.LOGGER = LOGGER
-
+        # Initialize the logger
+        self.LOGGER = logging.getLogger(__name__)
+        logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+    
     async def start(self):
         await super().start()
         usr_bot_me = await self.get_me()
         self.uptime = datetime.now()
+        self.LOGGER.info(f"Bot Started as @{usr_bot_me.username}")
 
+        # Handle FORCE_SUB_CHANNELS
         if FORCE_SUB_CHANNELS:
             try:
                 link = (await self.get_chat(FORCE_SUB_CHANNELS)).invite_link
@@ -37,44 +45,36 @@ class Bot(Client):
                     await self.export_chat_invite_link(FORCE_SUB_CHANNELS)
                     link = (await self.get_chat(FORCE_SUB_CHANNELS)).invite_link
                 self.invitelink = link
-            except Exception as a:
-                self.LOGGER.warning(a)
-                self.LOGGER.warning("Bot can't Export Invite link from Force Sub Channel!")
-
-   def __init__(self):
-        self.LOGGER = logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
-
-                self.LOGGER.warning(f"Please Double check the FORCE_SUB_CHANNELS value and Make sure Bot is Admin in channel with Invite Users via Link Permission, Current Force Sub Channels Value: {FORCE_SUB_CHANNELS}")
-                self.LOGGER(__name__).info("\nBot Stopped. Join https://t.me/CodeXBotzSupport for support")
+            except Exception as e:
+                self.LOGGER.warning("Bot can't export invite link from Force Sub Channel!")
+                self.LOGGER.warning(f"Error: {e}")
+                self.LOGGER.warning(f"Please double-check the FORCE_SUB_CHANNELS value and ensure the bot is an admin in the channel "
+                    f"with 'Invite Users via Link' permission. Current FORCE_SUB_CHANNELS value: {FORCE_SUB_CHANNELS}")
                 sys.exit()
+
+        # Handle CHANNEL_ID
         try:
             db_channel = await self.get_chat(CHANNEL_ID)
             self.db_channel = db_channel
-            test = await self.send_message(chat_id = db_channel.id, text = "Test Message")
+            test = await self.send_message(chat_id=db_channel.id, text="Test Message")
             await test.delete()
         except Exception as e:
-            self.LOGGER(__name__).warning(e)
-            self.LOGGER = logging.getLogger(__name__)
-
-# Now use the logger to log warnings
-            self.LOGGER.warning(f"Please double-check the FORCE_SUB_CHANNELS value and make sure the bot is an admin in the channel with Invite Users via Link permission. Current FORCE_SUB_CHANNELS value: {FORCE_SUB_CHANNELS}")
-
-            self.LOGGER(__name__).info("\nBot Stopped. Join https://t.me/CodeXBotzSupport for support")
+            self.LOGGER.warning(f"Failed to access database channel ({CHANNEL_ID}): {e}")
             sys.exit()
 
+        # Set parse mode for messages
         self.set_parse_mode(ParseMode.HTML)
-        self.LOGGER(__name__).info(f"Bot Running..!\n\nCreated by \nhttps://t.me/CodeXBotz")
-        self.LOGGER(__name__).info(f""" \n\n       
+        self.LOGGER.info("Bot Running..!\n\nCreated by https://t.me/CodeXBotz")
+        self.LOGGER.info("""
 ░█████╗░░█████╗░██████╗░███████╗██╗░░██╗██████╗░░█████╗░████████╗███████╗
 ██╔══██╗██╔══██╗██╔══██╗██╔════╝╚██╗██╔╝██╔══██╗██╔══██╗╚══██╔══╝╚════██║
 ██║░░╚═╝██║░░██║██║░░██║█████╗░░░╚███╔╝░██████╦╝██║░░██║░░░██║░░░░░███╔═╝
 ██║░░██╗██║░░██║██║░░██║██╔══╝░░░██╔██╗░██╔══██╗██║░░██║░░░██║░░░██╔══╝░░
 ╚█████╔╝╚█████╔╝██████╔╝███████╗██╔╝╚██╗██████╦╝╚█████╔╝░░░██║░░░███████╗
 ░╚════╝░░╚════╝░╚═════╝░╚══════╝╚═╝░░╚═╝╚═════╝░░╚════╝░░░░╚═╝░░░╚══════╝
-                                          """)
-        self.username = usr_bot_me.username
-        #web-response
+        """)
+
+        # Start the web server
         app = web.AppRunner(await web_server())
         await app.setup()
         bind_address = "0.0.0.0"
@@ -82,4 +82,4 @@ class Bot(Client):
 
     async def stop(self, *args):
         await super().stop()
-        self.LOGGER(__name__).info("Bot stopped.")
+        self.LOGGER.info("Bot stopped.")
