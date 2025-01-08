@@ -38,19 +38,30 @@ class Bot(Client):
         self.LOGGER.info(f"Bot Started as @{usr_bot_me.username}")
 
         # Handle FORCE_SUB_CHANNELS
-        if FORCE_SUB_CHANNELS:
-            try:
-                link = (await self.get_chat(FORCE_SUB_CHANNELS)).invite_link
+if FORCE_SUB_CHANNELS:
+    try:
+        if isinstance(FORCE_SUB_CHANNELS, list):
+            for channel in FORCE_SUB_CHANNELS:
+                link = (await self.get_chat(channel)).invite_link
                 if not link:
-                    await self.export_chat_invite_link(FORCE_SUB_CHANNELS)
-                    link = (await self.get_chat(FORCE_SUB_CHANNELS)).invite_link
-                self.invitelink = link
-            except Exception as e:
-                self.LOGGER.warning("Bot can't export invite link from Force Sub Channel!")
-                self.LOGGER.warning(f"Error: {e}")
-                self.LOGGER.warning(f"Please double-check the FORCE_SUB_CHANNELS value and ensure the bot is an admin in the channel "
-                    f"with 'Invite Users via Link' permission. Current FORCE_SUB_CHANNELS value: {FORCE_SUB_CHANNELS}")
-                sys.exit()
+                    await self.export_chat_invite_link(channel)
+                    link = (await self.get_chat(channel)).invite_link
+                self.invitelink = link  # Save the last valid invite link
+        else:
+            # If it's a single string or ID, handle it directly
+            link = (await self.get_chat(FORCE_SUB_CHANNELS)).invite_link
+            if not link:
+                await self.export_chat_invite_link(FORCE_SUB_CHANNELS)
+                link = (await self.get_chat(FORCE_SUB_CHANNELS)).invite_link
+            self.invitelink = link
+    except Exception as e:
+        self.LOGGER.warning(f"Error handling FORCE_SUB_CHANNELS: {e}")
+        self.LOGGER.warning(
+            f"Please double-check the FORCE_SUB_CHANNELS value and ensure the bot is an admin in the channel "
+            f"with 'Invite Users via Link' permission. Current FORCE_SUB_CHANNELS value: {FORCE_SUB_CHANNELS}"
+        )
+        sys.exit()
+
 
         # Handle CHANNEL_ID
         try:
