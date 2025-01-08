@@ -50,7 +50,11 @@ class Bot(Client):
             await test.delete()
         except Exception as e:
             self.LOGGER(__name__).warning(e)
-            self.LOGGER(__name__).warning(f"Make Sure bot is Admin in DB Channel, and Double check the CHANNEL_ID Value, Current Value {CHANNEL_ID}")
+            self.LOGGER = logging.getLogger(__name__)
+
+# Now use the logger to log warnings
+            self.LOGGER.warning(f"Please double-check the FORCE_SUB_CHANNELS value and make sure the bot is an admin in the channel with Invite Users via Link permission. Current FORCE_SUB_CHANNELS value: {FORCE_SUB_CHANNELS}")
+
             self.LOGGER(__name__).info("\nBot Stopped. Join https://t.me/CodeXBotzSupport for support")
             sys.exit()
 
