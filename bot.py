@@ -43,38 +43,10 @@ class Bot(Client):
 
         # Handle FORCE_SUB_CHANNELS
         if FORCE_SUB_CHANNELS:
-            try:
-                if isinstance(FORCE_SUB_CHANNELS, list):
-                    for channel in FORCE_SUB_CHANNELS:
-                        link = (await self.get_chat(channel)).invite_link
-                        if not link:
-                            await self.export_chat_invite_link(channel)
-                            link = (await self.get_chat(channel)).invite_link
-                        self.invitelink = link  # Save the last valid invite link
-                else:
-                    # If it's a single string or ID, handle it directly
-                    link = (await self.get_chat(FORCE_SUB_CHANNELS)).invite_link
-                    if not link:
-                        await self.export_chat_invite_link(FORCE_SUB_CHANNELS)
-                        link = (await self.get_chat(FORCE_SUB_CHANNELS)).invite_link
-                    self.invitelink = link
-            except Exception as e:
-                self.LOGGER.warning(f"Error handling FORCE_SUB_CHANNELS: {e}")
-                self.LOGGER.warning(
-                    f"Please double-check the FORCE_SUB_CHANNELS value and ensure the bot is an admin in the channel "
-                    f"with 'Invite Users via Link' permission. Current FORCE_SUB_CHANNELS value: {FORCE_SUB_CHANNELS}"
-                )
-                sys.exit()
+            await self._handle_force_sub_channels()
 
         # Handle CHANNEL_ID
-        try:
-            db_channel = await self.get_chat(CHANNEL_ID)
-            self.db_channel = db_channel
-            test = await self.send_message(chat_id=db_channel.id, text="Test Message")
-            await test.delete()
-        except Exception as e:
-            self.LOGGER.warning(f"Failed to access database channel ({CHANNEL_ID}): {e}")
-            sys.exit()
+        await self._handle_db_channel()
 
         # Set parse mode for messages
         self.set_parse_mode(ParseMode.HTML)
@@ -98,4 +70,40 @@ class Bot(Client):
         await super().stop()
         self.LOGGER.info("Bot stopped.")
 
+    async def _handle_force_sub_channels(self):
+        """Handles FORCE_SUB_CHANNELS for ensuring the bot is admin and getting invite links."""
+        if isinstance(FORCE_SUB_CHANNELS, list):
+            for channel in FORCE_SUB_CHANNELS:
+                await self._process_channel(channel)
+        else:
+            await self._process_channel(FORCE_SUB_CHANNELS)
 
+    async def _process_channel(self, channel):
+        """Processes a single channel for FORCE_SUB_CHANNELS."""
+        try:
+            chat = await self.get_chat(channel)
+            link = chat.invite_link
+            if not link:
+                await self.export_chat_invite_link(channel)
+                link = (await self.get_chat(channel)).invite_link
+            self.LOGGER.info(f"Force Sub Channel '{chat.title}' invite link: {link}")
+            self.invitelink = link  # Save the last valid invite link
+        except Exception as e:
+            self.LOGGER.warning(f"Error with channel {channel}: {e}")
+            self.LOGGER.warning(
+                f"Please double-check the FORCE_SUB_CHANNELS value and ensure the bot is an admin in the channel "
+                f"with 'Invite Users via Link' permission. Current channel: {channel}"
+            )
+            sys.exit()
+
+    async def _handle_db_channel(self):
+        """Handles database channel access."""
+        try:
+            db_channel = await self.get_chat(CHANNEL_ID)
+            self.db_channel = db_channel
+            test = await self.send_message(chat_id=db_channel.id, text="Test Message")
+            await test.delete()
+            self.LOGGER.info(f"Database channel '{db_channel.title}' is accessible.")
+        except Exception as e:
+            self.LOGGER.warning(f"Failed to access database channel ({CHANNEL_ID}): {e}")
+            sys.exit()
