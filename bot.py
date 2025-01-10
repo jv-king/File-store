@@ -16,7 +16,6 @@ from config import (
     PORT
 )
 
-
 class Bot(Client):
     def __init__(self):
         # Initialize the Pyrogram Client
@@ -71,33 +70,41 @@ class Bot(Client):
         self.LOGGER.info("Bot stopped.")
 
     async def _handle_force_sub_channels(self):
-        """Handles FORCE_SUB_CHANNELS for ensuring the bot is admin and getting invite links."""
-        if isinstance(FORCE_SUB_CHANNELS, list):
-            for channel in FORCE_SUB_CHANNELS:
-                await self._process_channel(channel)
-        else:
-            await self._process_channel(FORCE_SUB_CHANNELS)
+        """
+        Handles FORCE_SUB_CHANNELS for ensuring the bot is an admin 
+        and processing group chats or channels.
+        """
+        if not isinstance(FORCE_SUB_CHANNELS, list):
+            raise ValueError("FORCE_SUB_CHANNELS must be a list of channel/group IDs.")
 
-    async def _process_channel(self, channel):
-        """Processes a single channel for FORCE_SUB_CHANNELS."""
-        try:
-            chat = await self.get_chat(channel)
-            link = chat.invite_link
-            if not link:
-                await self.export_chat_invite_link(channel)
-                link = (await self.get_chat(channel)).invite_link
-            self.LOGGER.info(f"Force Sub Channel '{chat.title}' invite link: {link}")
-            self.invitelink = link  # Save the last valid invite link
-        except Exception as e:
-            self.LOGGER.warning(f"Error with channel {channel}: {e}")
-            self.LOGGER.warning(
-                f"Please double-check the FORCE_SUB_CHANNELS value and ensure the bot is an admin in the channel "
-                f"with 'Invite Users via Link' permission. Current channel: {channel}"
-            )
-            sys.exit()
+        self.invitelinks = {}  # Dictionary to store invite links for channels
+
+        for channel in FORCE_SUB_CHANNELS:
+            try:
+                chat = await self.get_chat(channel)
+
+                if chat.type == "channel":
+                    # Process channels by managing invite links
+                    link = chat.invite_link
+                    if not link:
+                        await self.export_chat_invite_link(channel)
+                        link = (await self.get_chat(channel)).invite_link
+                    self.invitelinks[channel] = link
+                    self.LOGGER.info(f"Processed channel '{chat.title}' with invite link: {link}")
+
+                elif chat.type in ["supergroup", "group"]:
+                    # Ensure the bot is present in groups
+                    self.LOGGER.info(f"Processed group '{chat.title}': Bot is present.")
+                else:
+                    self.LOGGER.warning(f"Unsupported chat type for '{chat.title}': {chat.type}")
+
+            except Exception as e:
+                self.LOGGER.warning(f"Error processing chat {channel}: {e}")
 
     async def _handle_db_channel(self):
-        """Handles database channel access."""
+        """
+        Ensures the bot can access the database channel and verify permissions.
+        """
         try:
             db_channel = await self.get_chat(CHANNEL_ID)
             self.db_channel = db_channel
